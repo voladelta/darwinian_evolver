@@ -135,7 +135,6 @@ class Evolver:
                     "sample_parents should only have returned organisms with at least one trainable failure case"
                 )
                 learning_log_entries = self._learning_log_view.get_entries_for_organism(organism)
-                num_learning_log_entries_supplied += len(learning_log_entries)
                 for mutator in self._mutators:
                     failure_cases_for_mutator = (
                         failure_cases if mutator.supports_batch_mutation else [failure_cases[0]]
@@ -151,6 +150,7 @@ class Evolver:
                     mutator_futures.append(mutator_future)
                     num_mutate_calls += 1
                     num_failure_cases_supplied += len(failure_cases_for_mutator)
+                    num_learning_log_entries_supplied += len(learning_log_entries)
 
             # Build futures that return (organism, passed_verification) tuples
             mutated_organisms_futures = []
