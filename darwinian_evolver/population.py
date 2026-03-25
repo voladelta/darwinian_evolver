@@ -142,7 +142,7 @@ class Population:
         self._organisms_failed_verification.append(organism)
 
     def sample_parents(
-        self, k: int, iteration: int | None = None, replace: bool = True, novelty_weight: float | None = None
+        self, k: int, iteration: int | None = None, replace: bool = True, novelty_weight: float | None = None, exclude_untrainable: bool = True,
     ) -> list[tuple[Organism, EvaluationResult]]:
         """Sample k parents from the population.
 
@@ -151,6 +151,7 @@ class Population:
             iteration: Optional iteration number (used by some subclasses)
             replace: If True, sample with replacement. If False, sample without replacement.
             novelty_weight: Optional weighting factor for novelty bonus.
+            exclude_untrainable: If True, exclude untrainable organisms from sampling.
 
         Returns:
             List of (organism, evaluation_result) tuples representing the sampled parents.
@@ -307,7 +308,7 @@ class WeightedSamplingPopulation(Population):
         return pickle.dumps(snapshot_dict)
 
     def sample_parents(
-        self, k: int, iteration: int | None = None, replace: bool = True, novelty_weight: float | None = None
+        self, k: int, iteration: int | None = None, replace: bool = True, novelty_weight: float | None = None, exclude_untrainable: bool = True,
     ) -> list[tuple[Organism, EvaluationResult]]:
         """Sample k parents from the population using weighted sampling.
 
@@ -316,6 +317,7 @@ class WeightedSamplingPopulation(Population):
             iteration: Optional iteration number (unused by this implementation)
             replace: If True, sample with replacement. If False, sample without replacement.
             novelty_weight: Optional weighting factor for novelty bonus. If None, uses the population's configured novelty weight.
+            exclude_untrainable: If True, exclude untrainable organisms from sampling. Untrainable organisms are those that have no trainable failure cases in their evaluation result.
         """
         # To be eligible for parent selection, an organism must:
         # * have failed in at least one trainable evaluation task
@@ -323,7 +325,7 @@ class WeightedSamplingPopulation(Population):
         eligible_organisms = [
             (organism, evaluation_result)
             for organism, evaluation_result in self._organisms
-            if evaluation_result.is_viable and len(evaluation_result.trainable_failure_cases) > 0
+            if evaluation_result.is_viable and (not exclude_untrainable or len(evaluation_result.trainable_failure_cases) > 0)
         ]
         if not eligible_organisms:
             raise RuntimeError("No eligible organisms for parent selection")
@@ -426,7 +428,7 @@ class FixedTreePopulation(Population):
         return pickle.dumps(snapshot_dict)
 
     def sample_parents(
-        self, k: int, iteration: int | None = None, replace: bool = True, novelty_weight: float | None = None
+        self, k: int, iteration: int | None = None, replace: bool = True, novelty_weight: float | None = None, exclude_untrainable: bool = True,
     ) -> list[tuple[Organism, EvaluationResult]]:
         """
         Select all organisms from the current generation frontier, each repeated n times.
@@ -436,6 +438,7 @@ class FixedTreePopulation(Population):
             iteration: Required. Used to determine number of children per parent from the pattern.
             replace: Unused by this implementation
             novelty_weight: Unused by this implementation
+            exclude_untrainable: Unused by this implementation
 
         Returns:
             List of (organism, evaluation_result) tuples, with each frontier organism repeated
