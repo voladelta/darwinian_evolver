@@ -142,7 +142,12 @@ class Population:
         self._organisms_failed_verification.append(organism)
 
     def sample_parents(
-        self, k: int, iteration: int | None = None, replace: bool = True, novelty_weight: float | None = None, exclude_untrainable: bool = True,
+        self,
+        k: int,
+        iteration: int | None = None,
+        replace: bool = True,
+        novelty_weight: float | None = None,
+        exclude_untrainable: bool = True,
     ) -> list[tuple[Organism, EvaluationResult]]:
         """Sample k parents from the population.
 
@@ -308,7 +313,12 @@ class WeightedSamplingPopulation(Population):
         return pickle.dumps(snapshot_dict)
 
     def sample_parents(
-        self, k: int, iteration: int | None = None, replace: bool = True, novelty_weight: float | None = None, exclude_untrainable: bool = True,
+        self,
+        k: int,
+        iteration: int | None = None,
+        replace: bool = True,
+        novelty_weight: float | None = None,
+        exclude_untrainable: bool = True,
     ) -> list[tuple[Organism, EvaluationResult]]:
         """Sample k parents from the population using weighted sampling.
 
@@ -325,7 +335,8 @@ class WeightedSamplingPopulation(Population):
         eligible_organisms = [
             (organism, evaluation_result)
             for organism, evaluation_result in self._organisms
-            if evaluation_result.is_viable and (not exclude_untrainable or len(evaluation_result.trainable_failure_cases) > 0)
+            if evaluation_result.is_viable
+            and (not exclude_untrainable or len(evaluation_result.trainable_failure_cases) > 0)
         ]
         if not eligible_organisms:
             raise RuntimeError("No eligible organisms for parent selection")
@@ -428,7 +439,12 @@ class FixedTreePopulation(Population):
         return pickle.dumps(snapshot_dict)
 
     def sample_parents(
-        self, k: int, iteration: int | None = None, replace: bool = True, novelty_weight: float | None = None, exclude_untrainable: bool = True,
+        self,
+        k: int,
+        iteration: int | None = None,
+        replace: bool = True,
+        novelty_weight: float | None = None,
+        exclude_untrainable: bool = True,
     ) -> list[tuple[Organism, EvaluationResult]]:
         """
         Select all organisms from the current generation frontier, each repeated n times.
